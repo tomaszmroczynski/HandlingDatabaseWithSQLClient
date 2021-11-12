@@ -1,7 +1,9 @@
 ﻿using LearningSQLClient.Models;
 using LearningSQLClient.Repositories;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace LearningSQLClient
 {
@@ -9,30 +11,52 @@ namespace LearningSQLClient
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
-            
-        }
+        
+            string choice 
 
-        static void TestSelectAll(ICustomerRepository repository)
-        {
-
-        }
-        static void TestSelect(ICustomerRepository repository)
-        {
 
         }
 
-        static void PrintCustomers(IEnumerable<Superheroes> customers)
+        static void TestSelectAll(ISuperheroRepository repository)
         {
-            foreach (var customer in customers)
+
+        }
+        static void TestSelect(ISuperheroRepository repository)
+        {
+
+        }
+
+        static void PrintSuperheroes(IEnumerable<Superheroes> superheroes)
+        {
+            foreach (var superhero in superheroes)
             {
-                PrintCustomer(customer);
+                PrintSuperheroe(superhero);
             }
         }
 
-        static void PrintCustomer(Superheroes customer)
+        static void PrintSuperheroe(Superheroes superhero)
         {
-            Console.WriteLine($"---{ customer.CustomerID} {customer.ContactName} {customer.CompanyName} {}")
+            Console.WriteLine($"---{ superhero.ID} {superhero.Name} {superhero.Orgin} ");
+        }
+
+        /// <summary>
+        /// A method that shall execute all prepared SQLscripts in order of apperance
+        /// </summary>
+        static void ExecuteAssignment2AppendixARequirements()
+        {
+            string[] allfiles = Directory.GetFiles("/SQLscripts", "*.sql", SearchOption.AllDirectories);
+            ConnectionStingHelper ConnectionStingHelper = new ConnectionStingHelper();
+            foreach (var sqlScript in allfiles)
+            {
+                
+                string sqlConnectionString = ConnectionStingHelper.GetConnectionString();
+                FileInfo file = new FileInfo(sqlScript);
+                string script = file.OpenText().ReadToEnd();
+                SqlConnection conn = new SqlConnection(sqlConnectionString);
+                Server server = new Server(new ServerConnection(conn));
+                server.ConnectionContext.ExecuteNonQuery(script);
+            }
+
         }
 
     }
