@@ -6,8 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentNHibernate" Version="3.1.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="4.0.0-preview3.21293.2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
   </ItemGroup>
 
 </Project>
