@@ -8,14 +8,21 @@ namespace LearnSQL.Models
 {
     public class CustomerCountry
     {
-        public CustomerCountry(string name, int customerId)
+        public CustomerCountry(string countryName, int count  )
         {
-            Name = name;
-            CustomerId = customerId;
+            CountryName = countryName;
+            Count = count;
+            
+            
         }
-        public string Name { get; set; }
+        public string CountryName { get; set; }
+        public int Count { get; set; }
+        
 
-        public int CustomerId { get; set; }
+        public override string ToString()
+        {
+            return $"{CountryName} | {Count}";
+        }
 
 
     }

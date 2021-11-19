@@ -223,16 +223,17 @@ namespace LearnSQL.Repositories
             List<CustomerCountry> customerCountry = new List<CustomerCountry>();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
+
                 try
                 {
-                    string sql = $"select Country,CustomerId  from Customer group by Country order by count(CustomerId) desc";
+                    string sql = $"SELECT Country, COUNT(*) from Customer GROUP BY Country ORDER BY COUNT(Country) Desc";
                     connection.Open();
                     SqlCommand cmd = new SqlCommand(sql, connection);
                     var r = cmd.ExecuteReader();
 
                     while (r.Read())
                     {
-                        customerCountry.Add(new CustomerCountry(r.GetString(0), r.GetInt32(1)));
+                        customerCountry.Add(new CustomerCountry(r[0].ToString(), int.Parse(r[1].ToString()) ));
                        
                     }
                 }
@@ -251,6 +252,50 @@ namespace LearnSQL.Repositories
                 return customerCountry;
 
             };
+
+
+
+        }
+        
+            public List<CustomerSpender> GetTopSpenders()
+        {
+            List<CustomerSpender> customerCountry = new List<CustomerSpender>();
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+
+                //string sql = $"SELECT Customer.CustomerId, Customer.FirstName, Customer.LastName, SUM(Invoice.Total) from Customer LEFT JOIN Invoice ON Customer.CustomerID = Invoice.CustomerID GROUP BY Customer.CustomerId, Customer.FirstName, Customer.LastName ORDER BY SUM(Invoice.Total) Desc";
+
+                try
+                {
+                    string sql = $"SELECT Customer.CustomerId, Customer.FirstName, Customer.LastName, SUM(Invoice.Total) from Customer LEFT JOIN Invoice ON Customer.CustomerID = Invoice.CustomerID GROUP BY Customer.CustomerId, Customer.FirstName, Customer.LastName ORDER BY SUM(Invoice.Total) Desc";
+                    connection.Open();
+                    SqlCommand cmd = new SqlCommand(sql, connection);
+                    var r = cmd.ExecuteReader();
+
+                    while (r.Read())
+                    {
+                        customerCountry.Add(new CustomerSpender(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), double.Parse(r[3].ToString())));
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex.ToString());
+
+                }
+                finally
+                {
+
+                    connection.Close();
+
+                }
+                return customerCountry;
+
+            };
+
+
+
         }
     }
     }
