@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace LearnSQL.Models
 {
+    /// <summary>
+    /// A class that contains customer instance data with variable constructors 
+    /// </summary>
     public class Customer
     {
+        public Customer(int id)
+        {
+            Id = id;
+        }
         public Customer()
         {
 

@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace LearnSQL.Models
 {
+    /// <summary>
+    /// A class used to display customers favourite genre
+    /// </summary>
     public class CustomerGenre
     {
         public CustomerGenre(int genreId, string genreName, int counter )

@@ -47,7 +47,7 @@ namespace LearnSQL
             Console.WriteLine("---------------------------------");
             Console.WriteLine("Pick Id of customer you want to display");
             Console.WriteLine("---------------------------------");
-            String id = Console.ReadLine();
+            string id = Console.ReadLine();
             customer = new CustomerRepository().GetCustomerById(Int32.Parse(id));
             DisplayCustomer(customer);
             Console.WriteLine("---------------------------------");
@@ -63,15 +63,22 @@ namespace LearnSQL
             Console.WriteLine("---------------------------------");
             Console.WriteLine("Most populer genre for  selected customer");
             Console.WriteLine("---------------------------------");
+            customer = new Customer(10);
             var favouriteGenre = new CustomerRepository().GetMostPopularGenreForChosenCustomer(customer);
             DisplayMostPopularGenre(favouriteGenre);
         }
-
+        /// <summary>
+        /// A method to display results of database search methods
+        /// </summary>
+        /// <param name="customer">A customer to display</param>
         static void DisplayCustomer(Customer customer)
         {
                 Console.WriteLine(customer.ToString());
         }
-
+        /// <summary>
+        /// A method to display results of database search methods
+        /// </summary>
+        /// <param name="customers">A list customers to display</param>
         static void DisplayCustomers(List<Customer> customers)
         {
             foreach (var item in customers)
@@ -79,7 +86,10 @@ namespace LearnSQL
                 Console.WriteLine(item.ToString());
             }
         }
-
+        /// <summary>
+        /// A method to display results of database search methods
+        /// </summary>
+        /// <param name="countries">A list countries to display</param>
         static void DisplayCountries(List<CustomerCountry> countries)
         {
             foreach (var item in countries)
@@ -87,7 +97,10 @@ namespace LearnSQL
                 Console.WriteLine(item.ToString());
             }
         }
-  
+        /// <summary>
+        /// A method to display results of database search methods
+        /// </summary>
+        /// <param name="spenders">A list most spenders</param>
         static void DisplayTopSpenders(List<CustomerSpender> spenders)
         {
             foreach (var item in spenders)
@@ -95,7 +108,10 @@ namespace LearnSQL
                 Console.WriteLine(item.ToString());
             }
         }
-
+        /// <summary>
+        /// A method to display results of database search methods
+        /// </summary>
+        /// <param name="customerGenre">A list of  favourite genre</param>
         static void DisplayMostPopularGenre(List<CustomerGenre> customerGenre)
         {
             foreach (var item in customerGenre)

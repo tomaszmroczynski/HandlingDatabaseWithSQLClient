@@ -8,10 +8,16 @@ using System.Threading.Tasks;
 
 namespace LearnSQL.Repositories
 {
-    public class CustomerRepository
+    public class CustomerRepository : ICustomerRepository
     {
+
         private static readonly string _connectionString = @"Server=.\TOMAS;Database=Chinook;User Id=pletwal;Password=qwerty;Trusted_Connection=false;";
 
+        /// <summary>
+        /// A method that returns customer with selected id
+        /// </summary>
+        /// <param name="id">Customer Id</param>
+        /// <returns>Customer with selected Id</returns>
         public Customer GetCustomerById(int id)
         {
             var customer = new Customer();
@@ -41,6 +47,11 @@ namespace LearnSQL.Repositories
             };
         }
 
+        /// <summary>
+        /// A method that search customer in database by first name
+        /// </summary>
+        /// <param name="name">Customer first anme</param>
+        /// <returns>Customer by name</returns>
         public Customer GetCustomerByName(string name)
         {
             var customer = new Customer();
@@ -72,7 +83,10 @@ namespace LearnSQL.Repositories
                 return customer;
             };
         }
-
+        /// <summary>
+        /// A mathod that search database by all existing customers
+        /// </summary>
+        /// <returns>List of all customers</returns>
         public List<Customer> GetAllCustomers()
         {
             var customers = new List<Customer>();
@@ -100,6 +114,12 @@ namespace LearnSQL.Repositories
                 return customers;
             }
         }
+        /// <summary>
+        /// A method that search  customers in database limited to begin row and  number of rows to be shown
+        /// </summary>
+        /// <param name="offset">Begining row for search</param>
+        /// <param name="limit">Rows to be displayed</param>
+        /// <returns>Limited list of customers</returns>
         public List<Customer> GetLimitedCustomers(string offset, string limit) 
         {
             var customers = new List<Customer>();
@@ -131,6 +151,12 @@ namespace LearnSQL.Repositories
                 return customers;
             }
         }
+
+        /// <summary>
+        /// A method that adds new customer
+        /// </summary>
+        /// <param name="customer">An instance of customer</param>
+        /// <returns>succes of failure of addition</returns>
         public bool AddNewCustomer(Customer customer)
         {               
                 using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -159,13 +185,18 @@ namespace LearnSQL.Repositories
                 };
             }
 
+        /// <summary>
+        /// A method that updates existing customer
+        /// </summary>
+        /// <param name="customer">An instance of customer with parameters to be udated</param>
+        /// <returns>Success or failure of updating process</returns>
         public bool UpdateCustomer(Customer customer) 
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 try
                 {
-                    string sql = $"update Customer  SET (FirstName, LastName, Country, PostalCode, Phone, Email) VALUES(@FirstName, @LastName, @Country, @PostalCode, @PhoneNumber, @Email)  WHERE CustomerId = @Id";                  
+                    string sql = $"update Customer  SET  FirstName = @FirstName, LastName = @LastName, Country = @Country, PostalCode = @PostalCode, Phone = @PhoneNumber, Email = @Email    WHERE CustomerId = @Id";                  
                     connection.Open();
                     using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
@@ -187,7 +218,10 @@ namespace LearnSQL.Repositories
                 }           
             };
         }
-
+        /// <summary>
+        /// A method that search database for Countires with most customers in descending order
+        /// </summary>
+        /// <returns>List of customers by contry</returns>
         public List<CustomerCountry> GetCountOfCustomersByCountry()
         {
             List<CustomerCountry> customerCountry = new List<CustomerCountry>();
@@ -215,7 +249,10 @@ namespace LearnSQL.Repositories
                 return customerCountry;
             };
         }
-   
+            /// <summary>
+            /// A method that search databse for most spending customers
+            /// </summary>
+            /// <returns>List of customers by spending</returns>
             public List<CustomerSpender> GetTopSpenders()
             {
                 List<CustomerSpender> customerCountry = new List<CustomerSpender>();
@@ -244,6 +281,11 @@ namespace LearnSQL.Repositories
                 return customerCountry;
                 };
             }
+        /// <summary>
+        /// A method that search database for customers favourite genre
+        /// </summary>
+        /// <param name="customer">An instance of customer</param>
+        /// <returns>Selected customer's favourite genre</returns>
         public List<CustomerGenre> GetMostPopularGenreForChosenCustomer(Customer customer)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
@@ -251,16 +293,14 @@ namespace LearnSQL.Repositories
                 List<CustomerGenre> customerGenre = new List<CustomerGenre>();
                 try
                 {
-                    //select GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc
                     string sql = $"select TOP(1) WITH TIES GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc";
                     connection.Open();
                     using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
+                        cmd.Parameters.AddWithValue("@Id", customer.Id);
+                        cmd.ExecuteNonQuery();
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            cmd.Parameters.AddWithValue("@Id", customer.Id);
-                            cmd.ExecuteNonQuery();
-
                             while (reader.Read())
                             {
                                 customerGenre.Add(new CustomerGenre(int.Parse(reader[0].ToString()), reader[1].ToString(), int.Parse(reader[2].ToString())));

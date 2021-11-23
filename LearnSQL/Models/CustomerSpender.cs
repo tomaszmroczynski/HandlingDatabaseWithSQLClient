@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace LearnSQL.Models
 {
+    /// <summary>
+    /// A class used to display most spending customers
+    /// </summary>
     public class CustomerSpender
 
     {

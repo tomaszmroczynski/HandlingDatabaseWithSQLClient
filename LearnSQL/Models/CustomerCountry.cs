@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace LearnSQL.Models
 {
+    /// <summary>
+    /// A class used to display country with most customers
+    /// </summary>
     public class CustomerCountry
     {
         public CustomerCountry(string countryName, int count  )
