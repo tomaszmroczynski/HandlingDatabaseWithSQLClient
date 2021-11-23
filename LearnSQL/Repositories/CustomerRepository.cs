@@ -21,21 +21,21 @@ namespace LearnSQL.Repositories
                 {
                     string sql = $"select * from Customer where CustomerId={id}";
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customer = new Customer(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString());
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                customer = new Customer(int.Parse(reader[0].ToString()), reader[1].ToString(), reader[2].ToString(), reader[7].ToString(), reader[8].ToString(), reader[9].ToString(), reader[11].ToString());
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.ToString());
-                }
-                finally
-                {
-                    connection.Close();
                 }
                 return customer;
             };
@@ -48,23 +48,26 @@ namespace LearnSQL.Repositories
             {
                 try
                 {
-                    string sql = $"select * from Customer where FirstName like '{name}%'";
+                    string sql = $"select * from Customer where FirstName like @name";
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customer = new Customer(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString());
+                        cmd.Parameters.AddWithValue("@name", name);
+                        cmd.ExecuteNonQuery();
+
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                customer = new Customer(int.Parse(reader[0].ToString()), reader[1].ToString(), reader[2].ToString(), reader[7].ToString(), reader[8].ToString(), reader[9].ToString(), reader[11].ToString());
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.ToString());
-                }
-                finally
-                {
-                    connection.Close();
                 }
                 return customer;
             };
@@ -79,39 +82,45 @@ namespace LearnSQL.Repositories
                 {
                     string sql = "select * from Customer";
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customers.Add(new Customer(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString()));
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                customers.Add(new Customer(int.Parse(reader[0].ToString()), reader[1].ToString(), reader[2].ToString(), reader[7].ToString(), reader[8].ToString(), reader[9].ToString(), reader[11].ToString()));
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.ToString());
-                }
-                finally
-                {
-                    connection.Close();
                 }
                 return customers;
             }
         }
-        public List<Customer> GetLimitedCustomers(string offset, string limit)
+        public List<Customer> GetLimitedCustomers(string offset, string limit) 
         {
             var customers = new List<Customer>();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 try
                 {
-                    string sql = $"select * from Customer order by CustomerId OFFSET {offset} rows fetch next {limit} rows only;";
+                    string sql = $"select * from Customer order by CustomerId OFFSET @offset rows fetch next @limit rows only;";
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customers.Add(new Customer(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString()));
+                            cmd.Parameters.AddWithValue("@offset", offset);
+                            cmd.Parameters.AddWithValue("@limit", limit);
+                            cmd.ExecuteNonQuery();
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                customers.Add(new Customer(int.Parse(reader[0].ToString()), reader[1].ToString(), reader[2].ToString(), reader[7].ToString(), reader[8].ToString(), reader[9].ToString(), reader[11].ToString()));
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -119,102 +128,63 @@ namespace LearnSQL.Repositories
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.ToString());
                 }
-                finally
-                {
-                    connection.Close();
-                }
                 return customers;
             }
         }
-        public bool AddNewCustomer(Customer customer){
-                
+        public bool AddNewCustomer(Customer customer)
+        {               
                 using (SqlConnection connection = new SqlConnection(_connectionString))
                 {
                     try
                     {
                         string sql = $"INSERT INTO Customer (  FirstName, LastName, Country, PostalCode, Phone, Email) VALUES('{customer.FirstName}','{customer.LastName}','{customer.Country}','{customer.PostalCode}','{customer.PhoneNumber}', '{customer.Email}')";
                         connection.Open();
-                        SqlCommand cmd = new SqlCommand(sql, connection);
-                        var r = cmd.ExecuteReader();
-                    //while (r.Read())
-                    //{
-                    //    customer = new Customer( r[1].ToString(), r[2].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString());
-                    //}
+                    using (SqlCommand cmd = new SqlCommand(sql, connection)) 
+                    {
+                        cmd.Parameters.AddWithValue("@Firstname", customer.FirstName);
+                        cmd.Parameters.AddWithValue("@LastName", customer.LastName);
+                        cmd.Parameters.AddWithValue("@Country", customer.Country);
+                        cmd.Parameters.AddWithValue("@PostalCode", customer.PostalCode);
+                        cmd.Parameters.AddWithValue("@PhoneNumber", customer.PhoneNumber);
+                        cmd.Parameters.AddWithValue("@Email", customer.Email);
+                        cmd.ExecuteNonQuery();
+                    }
                     return true;
                     }
                     catch (Exception ex)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine(ex.ToString());
                     return false;
-                    }
-                    finally
-                    {
-
-                        connection.Close();
-                        
-                    }
-                    
+                    }                 
                 };
             }
 
-
-        public bool UpdateCustomer(string choice, string id, string updatedString )
+        public bool UpdateCustomer(Customer customer) 
         {
-            
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                //FirstName, LastName, Country, PostalCode, Phone, Email
                 try
                 {
-                    var customer = new Customer();
-                    string sql = null;
-                     switch (choice)
-                    {
-                        case "1":
-                             sql = $"update Customer  SET FirstName = '{updatedString}'  WHERE CustomerId = {id}";
-                            break;
-
-                        case "2":
-                             sql = $"update Customer  SET LastName = '{updatedString}'  WHERE CustomerId = {id}";
-                            break;
-                        case "3": 
-                            sql = $"update Customer  SET Country = '{updatedString}'  WHERE CustomerId = {id}";
-                            break;
-                        case "4": 
-                            sql = $"update Customer  SET PostalCode = '{updatedString}'  WHERE CustomerId = {id}";
-                            break;
-                        case "5": 
-                            sql = $"update Customer  SET Phone = '{updatedString}'  WHERE CustomerId = {id}";
-                            break;
-                        case "6": 
-                            sql = $"update Customer  SET Email = '{updatedString}'  WHERE CustomerId = {id}";
-                            break;
-                        default:
-                           
-                            break;
-                    }
-                    
+                    string sql = $"update Customer  SET (FirstName, LastName, Country, PostalCode, Phone, Email) VALUES(@FirstName, @LastName, @Country, @PostalCode, @PhoneNumber, @Email)  WHERE CustomerId = @Id";                  
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customer = new Customer(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), r[7].ToString(), r[8].ToString(), r[9].ToString(), r[11].ToString());
+                        cmd.Parameters.AddWithValue("@Firstname", customer.FirstName);
+                        cmd.Parameters.AddWithValue("@LastName", customer.LastName);
+                        cmd.Parameters.AddWithValue("@Country", customer.Country);
+                        cmd.Parameters.AddWithValue("@PostalCode", customer.PostalCode);
+                        cmd.Parameters.AddWithValue("@PhoneNumber", customer.PhoneNumber);
+                        cmd.Parameters.AddWithValue("@Email", customer.Email);
+                        cmd.Parameters.AddWithValue("@Id", customer.Id);
+                        cmd.ExecuteNonQuery();
                     }
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.ToString());
                     return false;
-                }
-                finally
-                {
-                    connection.Close();
-                }
-                
+                }           
             };
         }
 
@@ -223,80 +193,88 @@ namespace LearnSQL.Repositories
             List<CustomerCountry> customerCountry = new List<CustomerCountry>();
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-
                 try
                 {
                     string sql = $"SELECT Country, COUNT(*) from Customer GROUP BY Country ORDER BY COUNT(Country) Desc";
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customerCountry.Add(new CustomerCountry(r[0].ToString(), int.Parse(r[1].ToString()) ));
-                       
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        { 
+                            while (reader.Read())
+                            {
+                                customerCountry.Add(new CustomerCountry(reader[0].ToString(), int.Parse(reader[1].ToString())));
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(ex.ToString());
-                    
-                }
-                finally
-                {
-
-                    connection.Close();
-
+                    Console.WriteLine(ex.ToString());    
                 }
                 return customerCountry;
-
             };
-
-
-
         }
-        
+   
             public List<CustomerSpender> GetTopSpenders()
-        {
-            List<CustomerSpender> customerCountry = new List<CustomerSpender>();
-            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-
-                //string sql = $"SELECT Customer.CustomerId, Customer.FirstName, Customer.LastName, SUM(Invoice.Total) from Customer LEFT JOIN Invoice ON Customer.CustomerID = Invoice.CustomerID GROUP BY Customer.CustomerId, Customer.FirstName, Customer.LastName ORDER BY SUM(Invoice.Total) Desc";
-
+                List<CustomerSpender> customerCountry = new List<CustomerSpender>();
+                using (SqlConnection connection = new SqlConnection(_connectionString))
+                {
                 try
                 {
                     string sql = $"SELECT Customer.CustomerId, Customer.FirstName, Customer.LastName, SUM(Invoice.Total) from Customer LEFT JOIN Invoice ON Customer.CustomerID = Invoice.CustomerID GROUP BY Customer.CustomerId, Customer.FirstName, Customer.LastName ORDER BY SUM(Invoice.Total) Desc";
                     connection.Open();
-                    SqlCommand cmd = new SqlCommand(sql, connection);
-                    var r = cmd.ExecuteReader();
-
-                    while (r.Read())
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                        customerCountry.Add(new CustomerSpender(int.Parse(r[0].ToString()), r[1].ToString(), r[2].ToString(), double.Parse(r[3].ToString())));
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
 
+                            while (reader.Read())
+                            {
+                                customerCountry.Add(new CustomerSpender(int.Parse(reader[0].ToString()), reader[1].ToString(), reader[2].ToString(), double.Parse(reader[3].ToString())));
+                            }
+                        }
                     }
                 }
                 catch (Exception ex)
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    {
                     Console.WriteLine(ex.ToString());
-
-                }
-                finally
-                {
-
-                    connection.Close();
-
-                }
+                    }
                 return customerCountry;
+                };
+            }
+        public List<CustomerGenre> GetMostPopularGenreForChosenCustomer(Customer customer)
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                List<CustomerGenre> customerGenre = new List<CustomerGenre>();
+                try
+                {
+                    //select GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc
+                    string sql = $"WITH CountQuery AS (select GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc) SELECT TOP(1) WITH TIES * FROM CountQuery ORDER BY Counter";
+                    connection.Open();
+                    using (SqlCommand cmd = new SqlCommand(sql, connection))
+                    {
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            cmd.Parameters.AddWithValue("@Id", customer.Id);
+                            cmd.ExecuteNonQuery();
 
+                            while (reader.Read())
+                            {
+                                customerGenre.Add(new CustomerGenre(int.Parse(reader[0].ToString()), reader[1].ToString(), int.Parse(reader[2].ToString())));
+                            }    
+                        }
+                    }                   
+                }               
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                return customerGenre
             };
-
-
-
         }
     }
-    }
+}
 

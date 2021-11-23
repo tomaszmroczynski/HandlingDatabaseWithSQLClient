@@ -11,19 +11,13 @@ namespace LearnSQL.Models
         public CustomerCountry(string countryName, int count  )
         {
             CountryName = countryName;
-            Count = count;
-            
-            
+            Count = count;     
         }
         public string CountryName { get; set; }
         public int Count { get; set; }
-        
-
         public override string ToString()
         {
             return $"{CountryName} | {Count}";
         }
-
-
     }
 }

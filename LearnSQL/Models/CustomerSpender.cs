@@ -8,7 +8,6 @@ namespace LearnSQL.Models
 {
     public class CustomerSpender
 
-        //Customer.CustomerId, Customer.FirstName, Customer.LastName, SUM(Invoice.Total)
     {
         public CustomerSpender(int customerId, string firstName, string lastName, double sumInvoice)
         {
@@ -16,12 +15,15 @@ namespace LearnSQL.Models
             FirstName = firstName;
             LastName = lastName;
             SumInvoice = sumInvoice;
-
         }
         public int CustomerId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public double SumInvoice { get; set; }
+        public override string ToString()
+        {
+            return $"{CustomerId} | {FirstName} | {LastName} | {SumInvoice}$ ";
+        }
 
     }
 }
