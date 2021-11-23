@@ -111,8 +111,8 @@ namespace LearnSQL.Repositories
                     connection.Open();
                     using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
-                            cmd.Parameters.AddWithValue("@offset", offset);
-                            cmd.Parameters.AddWithValue("@limit", limit);
+                            cmd.Parameters.AddWithValue("@offset", int.Parse(offset));
+                            cmd.Parameters.AddWithValue("@limit", int.Parse(limit));
                             cmd.ExecuteNonQuery();
                         using (SqlDataReader reader = cmd.ExecuteReader())
                         {
@@ -252,7 +252,7 @@ namespace LearnSQL.Repositories
                 try
                 {
                     //select GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc
-                    string sql = $"WITH CountQuery AS (select GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc) SELECT TOP(1) WITH TIES * FROM CountQuery ORDER BY Counter";
+                    string sql = $"select TOP(1) WITH TIES GId, GName, count(GId) as Counter from(select t.GenreId as GId, g.Name as GName from Track t inner join Genre g on t.GenreId = g.GenreId where t.TrackId in (select TrackId from InvoiceLine where InvoiceId in (select InvoiceId  from Invoice where CustomerId = @Id))) as v group by GId, GName order by Counter desc";
                     connection.Open();
                     using (SqlCommand cmd = new SqlCommand(sql, connection))
                     {
@@ -264,16 +264,16 @@ namespace LearnSQL.Repositories
                             while (reader.Read())
                             {
                                 customerGenre.Add(new CustomerGenre(int.Parse(reader[0].ToString()), reader[1].ToString(), int.Parse(reader[2].ToString())));
-                            }    
+                            }
                         }
-                    }                   
-                }               
+                    }
+                }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.ToString());
                 }
-                return customerGenre
-            };
+                return customerGenre;
+            }
         }
     }
 }

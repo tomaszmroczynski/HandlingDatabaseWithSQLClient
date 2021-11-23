@@ -22,7 +22,7 @@ namespace LearnSQL.Models
         public double SumInvoice { get; set; }
         public override string ToString()
         {
-            return $"{CustomerId} | {FirstName} | {LastName} | {SumInvoice}$ ";
+            return $"{CustomerId} | {FirstName} | {LastName} | {SumInvoice} ";
         }
 
     }
